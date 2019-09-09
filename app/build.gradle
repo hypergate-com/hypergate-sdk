@@ -6,10 +6,37 @@ apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'org.jetbrains.dokka-android'
 
+apply plugin: 'com.github.dcendents.android-maven'
+
+apply plugin: 'com.jfrog.bintray'
 
 dokka {
     outputFormat = 'html'
     outputDirectory = "$buildDir/javadoc"
+}
+
+ext {
+    bintrayRepo = 'hypergate-sdk'
+    bintrayName = 'hypergate-sdk'
+
+    publishedGroupId = 'com.hypergate.sdk'
+    libraryName = 'HypergateSDK'
+    artifact = 'hypergatesdk'
+
+    libraryDescription = 'Hypergate integration SDK'
+
+    siteUrl = 'https://github.com/hypergate-com/hypergate-sdk'
+    gitUrl = 'https://github.com/hypergate-com/hypergate-sdk.git'
+
+    libraryVersion = '1.0.12'
+
+    developerId = 'hypergate-sdk'
+    developerName = 'Papers GmbH'
+    developerEmail = 'support@hypergate.com'
+
+    licenseName = 'MIT'
+    licenseUrl = 'https://opensource.org/licenses/MIT'
+    allLicenses = ["MIT"]
 }
 
 android {
@@ -39,3 +66,5 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
+
+apply from: 'publish.gradle'
