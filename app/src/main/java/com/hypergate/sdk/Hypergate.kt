@@ -1,7 +1,7 @@
 package com.hypergate.sdk
 
 import android.accounts.AccountManager
-import android.content.Context
+import android.app.Activity
 import android.os.Bundle
 import android.util.Base64
 
@@ -20,7 +20,7 @@ import android.util.Base64
  * Furthermore by importing this package your webviews will be enabled automatically and transparently
  * to request tokens from Hypergate if needed.
  */
-class Hypergate() {
+class Hypergate {
     companion object {
         private val KEY_INCOMING_AUTH_TOKEN = "incomingAuthToken"
         private val MANAGED_CONFIG_ACCOUNT_TYPE_KEY =
@@ -31,20 +31,20 @@ class Hypergate() {
          * headers of your request. This method is synchronous (blocking), you will receive the
          * result in the return of this method
          *
-         * @param context the Android context used
+         * @param activity the Activity context to use for launching
          * @param servicePrincipalName the service principal you are request a token for e.g. HTTP/myhost.com
          * @param incommingAuthToken optional incomming auth token in case you want to establish a context
          * @throws HypergateException in case something went wrong
          */
         @Throws(HypergateException::class)
         fun requestTokenBundleSync(
-            context: Context,
+            activity: Activity,
             servicePrincipalName: String,
             incommingAuthToken: ByteArray
         ): Bundle {
-            val accountType = ManagedConfig.readManagedConfig(context)
+            val accountType = ManagedConfig.readManagedConfig(activity)
                 .getString(MANAGED_CONFIG_ACCOUNT_TYPE_KEY, "ch.papers.hypergate")
-            val accountManager = AccountManager.get(context)
+            val accountManager = AccountManager.get(activity)
             val accounts = accountManager.getAccountsByType(accountType)
             val authToken = "SPNEGO:HOSTBASED:${servicePrincipalName}"
             if (accounts.size != 0) {
@@ -63,12 +63,12 @@ class Hypergate() {
                     account,
                     authToken,
                     optionsBundle,
-                    true,
+                    activity,
                     null,
                     null
                 ).result
             } else {
-                throw HypergateException("no accounts found",101)
+                throw HypergateException("no accounts found", 101)
             }
         }
 
@@ -77,16 +77,16 @@ class Hypergate() {
          * headers of your request. This method is synchronous (blocking), you will receive the
          * result in the return of this method
          *
-         * @param context the Android context used
+         * @param activity the Activity context to use for launching
          * @param servicePrincipalName the service principal you are request a token for e.g. HTTP/myhost.com
          * @throws HypergateException in case something went wrong
          */
         @Throws(HypergateException::class)
         fun requestTokenBundleSync(
-            context: Context,
+            activity: Activity,
             servicePrincipalName: String
         ): Bundle {
-            return requestTokenBundleSync(context, servicePrincipalName, ByteArray(0))
+            return requestTokenBundleSync(activity, servicePrincipalName, ByteArray(0))
         }
 
         /**
@@ -94,18 +94,18 @@ class Hypergate() {
          * headers of your request. This method is synchronous (blocking), you will receive the
          * result in the return of this method
          *
-         * @param context the Android context used
+         * @param activity the Activity context to use for launching
          * @param servicePrincipalName the service principal you are request a token for e.g. HTTP/myhost.com
          * @param incommingAuthToken optional incomming auth token in case you want to establish a context
          * @throws HypergateException in case something went wrong
          */
         @Throws(HypergateException::class)
         fun requestTokenSync(
-            context: Context,
+            activity: Activity,
             servicePrincipalName: String,
             incommingAuthToken: ByteArray = ByteArray(0)
         ): String {
-            val bundle = requestTokenBundleSync(context, servicePrincipalName, incommingAuthToken)
+            val bundle = requestTokenBundleSync(activity, servicePrincipalName, incommingAuthToken)
             return bundle.getString(AccountManager.KEY_AUTHTOKEN, "")
         }
 
@@ -114,16 +114,16 @@ class Hypergate() {
          * headers of your request. This method is synchronous (blocking), you will receive the
          * result in the return of this method
          *
-         * @param context the Android context used
+         * @param activity the Activity context to use for launching
          * @param servicePrincipalName the service principal you are request a token for e.g. HTTP/myhost.com
          * @throws HypergateException in case something went wrong
          */
         @Throws(HypergateException::class)
         fun requestTokenSync(
-            context: Context,
+            activity: Activity,
             servicePrincipalName: String
         ): String {
-            return requestTokenSync(context, servicePrincipalName, ByteArray(0))
+            return requestTokenSync(activity, servicePrincipalName, ByteArray(0))
         }
 
         /**
@@ -131,14 +131,14 @@ class Hypergate() {
          * headers of your request. This method is asynchronous (non-blocking), you will receive the
          * result in the success callback you provide
          *
-         * @param context the Android context used
+         * @param activity the Activity context to use for launching
          * @param servicePrincipalName the service principal you are request a token for e.g. HTTP/myhost.com
          * @param incommingAuthToken optional incomming auth token in case you want to establish a context
          * @param successCallback callback used in case of success
          * @param errorCallback callback used in case of error
          */
         fun requestTokenBundleAsync(
-            context: Context,
+            activity: Activity,
             servicePrincipalName: String,
             incommingAuthToken: ByteArray = ByteArray(0),
             successCallback: (result: Bundle) -> Unit,
@@ -148,7 +148,7 @@ class Hypergate() {
                 try {
                     successCallback(
                         requestTokenBundleSync(
-                            context,
+                            activity,
                             servicePrincipalName,
                             incommingAuthToken
                         )
@@ -164,19 +164,19 @@ class Hypergate() {
          * headers of your request. This method is asynchronous (non-blocking), you will receive the
          * result in the success callback you provide
          *
-         * @param context the Android context used
+         * @param activity the Activity context to use for launching
          * @param servicePrincipalName the service principal you are request a token for e.g. HTTP/myhost.com
          * @param successCallback callback used in case of success
          * @param errorCallback callback used in case of error
          */
         fun requestTokenBundleAsync(
-            context: Context,
+            activity: Activity,
             servicePrincipalName: String,
             successCallback: (result: Bundle) -> Unit,
             errorCallback: (error: Exception) -> Unit
         ) {
             requestTokenBundleAsync(
-                context, servicePrincipalName,
+                activity, servicePrincipalName,
                 ByteArray(0), successCallback, errorCallback
             )
         }
@@ -186,21 +186,21 @@ class Hypergate() {
          * headers of your request. This method is asynchronous (non-blocking), you will receive the
          * result in the success callback you provide
          *
-         * @param context the Android context used
+         * @param activity the Activity context to use for launching
          * @param servicePrincipalName the service principal you are request a token for e.g. HTTP/myhost.com
          * @param incommingAuthToken optional incomming auth token in case you want to establish a context
          * @param successCallback callback used in case of success
          * @param errorCallback callback used in case of error
          */
         fun requestTokenAsync(
-            context: Context,
+            activity: Activity,
             servicePrincipalName: String,
             incommingAuthToken: ByteArray = ByteArray(0),
             successCallback: (result: String) -> Unit,
             errorCallback: (error: Exception) -> Unit
         ) {
             requestTokenBundleAsync(
-                context,
+                activity,
                 servicePrincipalName,
                 incommingAuthToken,
                 { bundle -> successCallback(bundle.getString(AccountManager.KEY_AUTHTOKEN, "")) },
@@ -213,19 +213,19 @@ class Hypergate() {
          * headers of your request. This method is asynchronous (non-blocking), you will receive the
          * result in the success callback you provide
          *
-         * @param context the Android context used
+         * @param activity the Activity context to use for launching
          * @param servicePrincipalName the service principal you are request a token for e.g. HTTP/myhost.com
          * @param successCallback callback used in case of success
          * @param errorCallback callback used in case of error
          */
         fun requestTokenAsync(
-            context: Context,
+            activity: Activity,
             servicePrincipalName: String,
             successCallback: (result: String) -> Unit,
             errorCallback: (error: Exception) -> Unit
         ) {
             requestTokenAsync(
-                context,
+                activity,
                 servicePrincipalName,
                 ByteArray(0),
                 successCallback,

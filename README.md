@@ -3,13 +3,13 @@
 ## Getting Started
 
 Hypergate is an official jcenter Android dependency. You can include it in your project by simply
-specifying com.hypergate.sdk:hypergatesdk:1.0.12 as a gradle dependency:
+specifying com.hypergate:sdk:1.0.15 as a gradle dependency:
 
 ```gradle
 ...
 dependencies {
    ...
-   implementation "com.hypergate.sdk:hypergatesdk:1.0.12"
+   implementation "com.hypergate:sdk:1.0.15"
    ....
 }
 ...
@@ -44,13 +44,13 @@ the token or asynchronously, which will return you the token in the success call
 #### Kotlin
 
 ```kotlin
-val token = Hypergate.requestTokenSync(appContext,"HTTP/myhost.com")
+val token = Hypergate.requestTokenSync(activity,"HTTP/myhost.com")
 ```
 
 #### Java
 
 ```java
-final String token = Hypergate.Companion.requestTokenSync(appContext, "HTTP/myhost.com");
+final String token = Hypergate.Companion.requestTokenSync(activity, "HTTP/myhost.com");
 ```
 
 #### Asynchronous Token Request
@@ -58,7 +58,7 @@ final String token = Hypergate.Companion.requestTokenSync(appContext, "HTTP/myho
 #### Kotlin
 
 ```kotlin
-Hypergate.requestTokenAsync(appContext, "HTTP/myhost.com",
+Hypergate.requestTokenAsync(activity, "HTTP/myhost.com",
         { negotiateToken -> Log.d("TOKEN", negotiateToken) },
         { exception -> Log.d("ERROR", exception.message) })
 ```
@@ -66,7 +66,7 @@ Hypergate.requestTokenAsync(appContext, "HTTP/myhost.com",
 #### Java
 
 ```java
-Hypergate.Companion.requestTokenAsync(appContext, "HTTP/myhost.com",
+Hypergate.Companion.requestTokenAsync(activity, "HTTP/myhost.com",
     new Function1<String, Unit>() {
         @Override
         public Unit invoke(String negotiateToken) {
@@ -82,6 +82,75 @@ Hypergate.Companion.requestTokenAsync(appContext, "HTTP/myhost.com",
             }
         }
 );
+```
+
+
+## Samples
+
+The following examples showcase how to authenticate HTTP requests using Hypergate for the most common
+HTTP Request libraries used on the Android platform. In a nutshell the only thing we do is request
+a token and put it into the the request headers. As of now we are cover the requests using Volley
+and OkHttp, if there is another HTTP Library you would like us to showcase feel free to reach out.
+
+#### Using Volley
+
+```kotlin
+val queue = Volley.newRequestQueue(activityRule.activity)
+val url = "https://securedendpoint.com"
+val stringRequest = object : StringRequest(
+    Method.GET, url,
+    Response.Listener<String> { response ->
+    },
+    Response.ErrorListener { Log.d("ERROR", "That didn't work!") }) {
+
+    override fun getHeaders(): MutableMap<String, String> {
+        val headers = super.getHeaders()
+        val token = Hypergate.requestTokenSync(
+            activityRule.activity,
+            "HTTP/${Uri.parse(this.url).host}"
+        )
+        headers.put("Authorization", "Negotiate ${token}")
+        return super.getHeaders()
+    }
+}
+queue.add(stringRequest)
+```
+
+#### Using OkHttp
+
+Simply create a interceptor:
+
+```kotlin
+internal class HypergateOkHttpInterceptor(private val activity: Activity) : Interceptor {
+
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val request = chain.request()
+
+        val token = Hypergate.requestTokenSync(
+            activity,
+            "HTTP/${request.url.host}"
+        )
+        val authenticatedRequest = request.newBuilder()
+            .addHeader("Authorization", "Negotiate ${token}")
+            .build()
+
+        return chain.proceed(authenticatedRequest)
+    }
+}
+```
+
+And then use it in your code:
+
+```kotlin
+val client = OkHttpClient.Builder()
+    .addInterceptor(HypergateOkHttpInterceptor(activityRule.activity))
+    .build()
+
+val request = Request.Builder()
+    .url("https://securedendpoint.com")
+    .build()
+
+val response = client.newCall(request).execute()
 ```
 
 ## Exceptions
