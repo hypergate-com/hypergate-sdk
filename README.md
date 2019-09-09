@@ -3,13 +3,13 @@
 ## Getting Started
 
 Hypergate is an official jcenter Android dependency. You can include it in your project by simply
-specifying com.hypergate.sdk:1.0.13 as a gradle dependency:
+specifying com.hypergate:sdk:1.0.14 as a gradle dependency:
 
 ```gradle
 ...
 dependencies {
    ...
-   implementation "com.hypergate.sdk:1.0.13"
+   implementation "com.hypergate:sdk:1.0.14"
    ....
 }
 ...
