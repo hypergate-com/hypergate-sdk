@@ -28,7 +28,7 @@ ext {
     siteUrl = 'https://github.com/hypergate-com/hypergate-sdk'
     gitUrl = 'https://github.com/hypergate-com/hypergate-sdk.git'
 
-    libraryVersion = '1.0.14'
+    libraryVersion = '1.0.15'
 
     developerId = 'hypergate-sdk'
     developerName = 'Papers GmbH'

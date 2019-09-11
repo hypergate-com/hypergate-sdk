@@ -1,5 +1,8 @@
 # Hypergate integration SDK
 
+This SDK allows you to enable any Android application to easily support Kerberos based SSO using any
+Android Kerberos Authenticator such as the [Hypergate Authenticator](https://hypergate.com).
+
 ## Getting Started
 
 Hypergate is an official jcenter Android dependency. You can include it in your project by simply
@@ -32,7 +35,22 @@ the Getting Started section. The magic that happens in the background is that yo
 will receive the needed Restrictions (hypergate_restrictions.xml) to transparently enable every
 WebView in your project.
 
-Make sure to configure your app in you MDM.
+After you included this plugin, your application will receive new managed configurations:
+
+- Account type for HTTP Negotiate authentication: this controls which account type your webview will
+ be looking for whenever there is an authentication challenge. This should be set to
+ 'ch.papers.hypergate'
+- Authentication server whitelist: this controls which servers are allowed to request authentication
+ tokens from hypergate. This can be either a wildcard (*) or the domains you want to enable
+- Whether NTLMv2 authentication is enabled: the title is self explenatory and actually has nothing
+ to do with Hypergate.
+
+After you configured the options in your MDM/EMM/UEM (thing that pushes restrictions aka managed
+ configurations) the webview will deal with all ajax and native requests on its own transparently
+  from your app. This means all your requests will be authenticated automagically.
+
+Note: If you decide not to use the standard ajax request and have a native plugin to perform
+ requests, you will need to go with the "Native Token Request" below.
 
 ### Native Token Request
 
@@ -74,16 +92,15 @@ Hypergate.Companion.requestTokenAsync(activity, "HTTP/myhost.com",
             return Unit.INSTANCE;
         }
     },
-    new Function1<HypergateException, Unit>() {
+    new Function1<Exception, Unit>() {
             @Override
-            public Unit invoke(HypergateException exception) {
+            public Unit invoke(Exception exception) {
                 Log.d("ERROR", exception.getMessage);
                 return Unit.INSTANCE;
             }
         }
 );
 ```
-
 
 ## Samples
 
@@ -153,6 +170,14 @@ val request = Request.Builder()
 val response = client.newCall(request).execute()
 ```
 
+### Cordova Applications
+
+If you are using Cordova for your hybrid applications, you will can easily enable your project to
+support SSO by simply installing a plugin. You can read more about it here:
+
+- [Hypergate Cordova Plugin](https://github.com/hypergate-com/cordova-plugin-hypergate)
+- [Hypergate Cordova Sample App](https://github.com/hypergate-com/hypergate-cordova-sample)
+
 ## Exceptions
 All exception callbacks return a HypergateException object. This object has no logic but holds 2 properties:
 
@@ -163,7 +188,7 @@ The following table includes a list of all errors you can encounter:
 
 | Code | Message | Description |
 |------|---------|-------------|
-| 101 | key is not inside secure hardware |  No accounts found, make sure you added your package name to the hypergate discoverability list |
+| 101 | no accounts found |  No accounts found, make sure you added your package name to the hypergate discoverability list |
 
 ## Troubleshooting
 
@@ -175,7 +200,9 @@ TODO
 ## Contributing
 
 This library is licensed under MIT. Feel free to provide pull requests, we'll be happy to review and
-include them.
+include them. If you find any bugs, submit an [issue](../../issues) or open
+ [pull-request](../../pulls), helping us catch and fix them.
+
 
 ### Build
 
@@ -203,3 +230,7 @@ The full java doc documentation can be generated with:
 $ ./gradlew clean dokka
 $ open app/build/javadoc/app/index.html
 ```
+
+## Support
+
+In case you require support feel free to reach out to us (support@hypergate.com)
