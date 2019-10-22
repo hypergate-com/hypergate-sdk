@@ -25,6 +25,7 @@ class Hypergate {
         private val KEY_INCOMING_AUTH_TOKEN = "incomingAuthToken"
         private val MANAGED_CONFIG_ACCOUNT_TYPE_KEY =
             "com.android.browser:AuthAndroidNegotiateAccountType"
+        private val KEY_SPNEGO_CONTEXT = "spnegoContext"
 
         /**
          * Requests the token bundle which includes the negotiate token you have to put in the HTTP
@@ -34,13 +35,15 @@ class Hypergate {
          * @param activity the Activity context to use for launching
          * @param servicePrincipalName the service principal you are request a token for e.g. HTTP/myhost.com
          * @param incommingAuthToken optional incomming auth token in case you want to establish a context
+         * @param spnegoContext optional context in case you need to retain the state for context establishment
          * @throws HypergateException in case something went wrong
          */
         @Throws(HypergateException::class)
         fun requestTokenBundleSync(
             activity: Activity,
             servicePrincipalName: String,
-            incommingAuthToken: ByteArray
+            incommingAuthToken: ByteArray,
+            spnegoContext: String
         ): Bundle {
             val accountType = ManagedConfig.readManagedConfig(activity)
                 .getString(MANAGED_CONFIG_ACCOUNT_TYPE_KEY, "ch.papers.hypergate")
@@ -59,6 +62,13 @@ class Hypergate {
                     )
                 }
 
+                if (spnegoContext.isNotEmpty()) {
+                    optionsBundle.putString(
+                        KEY_SPNEGO_CONTEXT,
+                        spnegoContext
+                    )
+                }
+
                 return accountManager.getAuthToken(
                     account,
                     authToken,
@@ -70,6 +80,25 @@ class Hypergate {
             } else {
                 throw HypergateException("no accounts found", 101)
             }
+        }
+
+        /**
+         * Requests the token bundle which includes the negotiate token you have to put in the HTTP
+         * headers of your request. This method is synchronous (blocking), you will receive the
+         * result in the return of this method
+         *
+         * @param activity the Activity context to use for launching
+         * @param servicePrincipalName the service principal you are request a token for e.g. HTTP/myhost.com
+         * @param incommingAuthToken optional incomming auth token in case you want to establish a context
+         * @throws HypergateException in case something went wrong
+         */
+        @Throws(HypergateException::class)
+        fun requestTokenBundleSync(
+            activity: Activity,
+            servicePrincipalName: String,
+            incommingAuthToken: ByteArray
+        ): Bundle {
+            return requestTokenBundleSync(activity, servicePrincipalName, incommingAuthToken, "")
         }
 
         /**
@@ -134,6 +163,42 @@ class Hypergate {
          * @param activity the Activity context to use for launching
          * @param servicePrincipalName the service principal you are request a token for e.g. HTTP/myhost.com
          * @param incommingAuthToken optional incomming auth token in case you want to establish a context
+         * @param spnegoContext optional context in case you need to retain the state for context establishment
+         * @param successCallback callback used in case of success
+         * @param errorCallback callback used in case of error
+         */
+        fun requestTokenBundleAsync(
+            activity: Activity,
+            servicePrincipalName: String,
+            incommingAuthToken: ByteArray = ByteArray(0),
+            spnegoContext: String,
+            successCallback: (result: Bundle) -> Unit,
+            errorCallback: (error: Exception) -> Unit
+        ) {
+            Thread {
+                try {
+                    successCallback(
+                        requestTokenBundleSync(
+                            activity,
+                            servicePrincipalName,
+                            incommingAuthToken,
+                            spnegoContext
+                        )
+                    )
+                } catch (exception: Exception) {
+                    errorCallback(exception)
+                }
+            }.start()
+        }
+
+        /**
+         * Requests the token bundle which includes the negotiate token you have to put in the HTTP
+         * headers of your request. This method is asynchronous (non-blocking), you will receive the
+         * result in the success callback you provide
+         *
+         * @param activity the Activity context to use for launching
+         * @param servicePrincipalName the service principal you are request a token for e.g. HTTP/myhost.com
+         * @param incommingAuthToken optional incomming auth token in case you want to establish a context
          * @param successCallback callback used in case of success
          * @param errorCallback callback used in case of error
          */
@@ -144,19 +209,10 @@ class Hypergate {
             successCallback: (result: Bundle) -> Unit,
             errorCallback: (error: Exception) -> Unit
         ) {
-            Thread {
-                try {
-                    successCallback(
-                        requestTokenBundleSync(
-                            activity,
-                            servicePrincipalName,
-                            incommingAuthToken
-                        )
-                    )
-                } catch (exception: Exception) {
-                    errorCallback(exception)
-                }
-            }.start()
+            requestTokenBundleAsync(
+                activity, servicePrincipalName,
+                incommingAuthToken, "", successCallback, errorCallback
+            )
         }
 
         /**
