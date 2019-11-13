@@ -22,7 +22,6 @@ If your application does not have it's own app restrictions, just add the follow
 
 ```xml
 ....
-dependencies {
    <application></application>
    ....
    <meta-data
@@ -30,7 +29,6 @@ dependencies {
         android:resource="@xml/hypergate_sdk_restrictions" />
    ....
    </application>
-}
 ....
 ```
         
