@@ -6,17 +6,35 @@ Android Kerberos Authenticator such as the [Hypergate Authenticator](https://hyp
 ## Getting Started
 
 Hypergate is an official jcenter Android dependency. You can include it in your project by simply
-specifying com.hypergate:sdk:1.0.15 as a gradle dependency:
+specifying com.hypergate:sdk:1.1.0 as a gradle dependency:
 
 ```gradle
 ....
 dependencies {
    ....
-   implementation "com.hypergate:sdk:1.0.17"
+   implementation "com.hypergate:sdk:1.1.0"
    ....
 }
 ....
 ```
+
+If your application does not have it's own app restrictions, just add the following line to your AndroidManifest.xml:
+
+```xml
+....
+dependencies {
+   <application></application>
+   ....
+   <meta-data
+        android:name="android.content.APP_RESTRICTIONS"
+        android:resource="@xml/hypergate_sdk_restrictions" />
+   ....
+   </application>
+}
+....
+```
+        
+Otherwise copy the restrictions form the resource file (hypergate_sdk_restrictions.xml) into your own restrictions file.
 
 ## Usage
 

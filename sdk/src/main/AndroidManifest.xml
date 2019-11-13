@@ -2,10 +2,6 @@
     package="com.hypergate.sdk">
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
-
     <application>
-        <meta-data
-            android:name="android.content.APP_RESTRICTIONS"
-            android:resource="@xml/hypergate_restrictions" />
     </application>
 </manifest>

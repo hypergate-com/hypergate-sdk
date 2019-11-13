@@ -6,7 +6,7 @@
     <application>
         <meta-data
             android:name="android.content.APP_RESTRICTIONS"
-            android:resource="@xml/hypergate_restrictions" />
+            android:resource="@xml/hypergate_sdk_restrictions" />
         <activity android:name="android.app.Activity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
