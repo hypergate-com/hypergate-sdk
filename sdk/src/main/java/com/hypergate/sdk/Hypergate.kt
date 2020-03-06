@@ -3,6 +3,7 @@ package com.hypergate.sdk
 import android.accounts.AccountManager
 import android.app.Activity
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.util.Base64
 
@@ -23,10 +24,10 @@ import android.util.Base64
  */
 class Hypergate {
     companion object {
-        private val KEY_INCOMING_AUTH_TOKEN = "incomingAuthToken"
-        private val MANAGED_CONFIG_ACCOUNT_TYPE_KEY =
+        private const val KEY_INCOMING_AUTH_TOKEN = "incomingAuthToken"
+        private const val MANAGED_CONFIG_ACCOUNT_TYPE_KEY =
             "com.android.browser:AuthAndroidNegotiateAccountType"
-        private val KEY_SPNEGO_CONTEXT = "spnegoContext"
+        private const val KEY_SPNEGO_CONTEXT = "spnegoContext"
 
 
         /**
@@ -90,7 +91,7 @@ class Hypergate {
          * result in the return of this method
          *
          * @param activity the Activity context to use for launching
-         * @param servicePrincipalName the service principal you are request a token for e.g. HTTP/myhost.com
+         * @param servicePrincipalName the service principal you are request a token for e.g. HTTP@myhost.com
          * @param incommingAuthToken optional incomming auth token in case you want to establish a context
          * @param spnegoContext optional context in case you need to retain the state for context establishment
          * @throws HypergateException in case something went wrong
@@ -135,7 +136,24 @@ class Hypergate {
                     null
                 ).result
             } else {
-                throw HypergateException("no accounts found", 101)
+
+                val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    AccountManager.newChooseAccountIntent(
+                        null, null,
+                        listOf(accountType).toTypedArray(),
+                        null, null, null,
+                        null
+                    )
+                } else {
+                    AccountManager.newChooseAccountIntent(
+                        null, null, listOf(accountType).toTypedArray(), false, null,
+                        null, null, null
+                    )
+                }
+
+                val result = Bundle()
+                result.putParcelable(AccountManager.KEY_INTENT, intent)
+                return result
             }
         }
 
@@ -174,7 +192,12 @@ class Hypergate {
             servicePrincipalName: String,
             incommingAuthToken: ByteArray
         ): Bundle {
-            return requestTokenBundleSilentlySync(context, servicePrincipalName, incommingAuthToken, "")
+            return requestTokenBundleSilentlySync(
+                context,
+                servicePrincipalName,
+                incommingAuthToken,
+                ""
+            )
         }
 
         /**
@@ -247,7 +270,8 @@ class Hypergate {
             servicePrincipalName: String,
             incommingAuthToken: ByteArray = ByteArray(0)
         ): String {
-            val bundle = requestTokenBundleSilentlySync(context, servicePrincipalName, incommingAuthToken)
+            val bundle =
+                requestTokenBundleSilentlySync(context, servicePrincipalName, incommingAuthToken)
             return bundle.getString(AccountManager.KEY_AUTHTOKEN, "")
         }
 
