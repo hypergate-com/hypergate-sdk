@@ -78,13 +78,13 @@ the token or asynchronously, which will return you the token in the success call
 #### Kotlin
 
 ```kotlin
-val token = Hypergate.requestTokenSync(activity,"HTTP/myhost.com")
+val token = Hypergate.requestTokenSync(activity,"HTTP@myhost.com")
 ```
 
 #### Java
 
 ```java
-final String token = Hypergate.Companion.requestTokenSync(activity, "HTTP/myhost.com");
+final String token = Hypergate.Companion.requestTokenSync(activity, "HTTP@myhost.com");
 ```
 
 #### Asynchronous Token Request
@@ -92,7 +92,7 @@ final String token = Hypergate.Companion.requestTokenSync(activity, "HTTP/myhost
 #### Kotlin
 
 ```kotlin
-Hypergate.requestTokenAsync(activity, "HTTP/myhost.com",
+Hypergate.requestTokenAsync(activity, "HTTP@myhost.com",
         { negotiateToken -> Log.d("TOKEN", negotiateToken) },
         { exception -> Log.d("ERROR", exception.message) })
 ```
@@ -100,7 +100,7 @@ Hypergate.requestTokenAsync(activity, "HTTP/myhost.com",
 #### Java
 
 ```java
-Hypergate.Companion.requestTokenAsync(activity, "HTTP/myhost.com",
+Hypergate.Companion.requestTokenAsync(activity, "HTTP@myhost.com",
     new Function1<String, Unit>() {
         @Override
         public Unit invoke(String negotiateToken) {

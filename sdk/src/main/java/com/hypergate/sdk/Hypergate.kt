@@ -1,8 +1,10 @@
 package com.hypergate.sdk
 
+import android.accounts.Account
 import android.accounts.AccountManager
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Base64
@@ -48,10 +50,8 @@ class Hypergate {
             incommingAuthToken: ByteArray,
             spnegoContext: String
         ): Bundle {
-            val accountType = ManagedConfig.readManagedConfig(context)
-                .getString(MANAGED_CONFIG_ACCOUNT_TYPE_KEY, "ch.papers.hypergate")
             val accountManager = AccountManager.get(context)
-            val accounts = accountManager.getAccountsByType(accountType)
+            val accounts = this.getAccounts(context)
             val authToken = "SPNEGO:HOSTBASED:${servicePrincipalName}"
             if (accounts.size != 0) {
                 val account = accounts.first()
@@ -103,10 +103,8 @@ class Hypergate {
             incommingAuthToken: ByteArray,
             spnegoContext: String
         ): Bundle {
-            val accountType = ManagedConfig.readManagedConfig(activity)
-                .getString(MANAGED_CONFIG_ACCOUNT_TYPE_KEY, "ch.papers.hypergate")
             val accountManager = AccountManager.get(activity)
-            val accounts = accountManager.getAccountsByType(accountType)
+            val accounts = this.getAccounts(activity)
             val authToken = "SPNEGO:HOSTBASED:${servicePrincipalName}"
             if (accounts.size != 0) {
                 val account = accounts.first()
@@ -136,24 +134,7 @@ class Hypergate {
                     null
                 ).result
             } else {
-
-                val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    AccountManager.newChooseAccountIntent(
-                        null, null,
-                        listOf(accountType).toTypedArray(),
-                        null, null, null,
-                        null
-                    )
-                } else {
-                    AccountManager.newChooseAccountIntent(
-                        null, null, listOf(accountType).toTypedArray(), false, null,
-                        null, null, null
-                    )
-                }
-
-                val result = Bundle()
-                result.putParcelable(AccountManager.KEY_INTENT, intent)
-                return result
+                throw HypergateException("no accounts found", 101)
             }
         }
 
@@ -575,6 +556,37 @@ class Hypergate {
                 successCallback,
                 errorCallback
             )
+        }
+
+        fun getAccounts(context: Context): Array<Account> {
+            val accountType = ManagedConfig.readManagedConfig(context)
+                .getString(MANAGED_CONFIG_ACCOUNT_TYPE_KEY, "ch.papers.hypergate")
+            val accountManager = AccountManager.get(context)
+            return accountManager.getAccountsByType(accountType)
+        }
+
+        fun hasAccount(context: Context): Boolean {
+            return this.getAccounts(context).isNotEmpty()
+        }
+
+        fun getAccountChooserIntent(context: Context): Intent {
+            val accountType = ManagedConfig.readManagedConfig(context)
+                .getString(MANAGED_CONFIG_ACCOUNT_TYPE_KEY, "ch.papers.hypergate")
+
+            val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                AccountManager.newChooseAccountIntent(
+                    null, null,
+                    listOf(accountType).toTypedArray(),
+                    null, null, null,
+                    null
+                )
+            } else {
+                AccountManager.newChooseAccountIntent(
+                    null, null, listOf(accountType).toTypedArray(), false, null,
+                    null, null, null
+                )
+            }
+            return intent
         }
     }
 }

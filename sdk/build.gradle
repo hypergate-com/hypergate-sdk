@@ -28,7 +28,7 @@ ext {
     siteUrl = 'https://github.com/hypergate-com/hypergate-sdk'
     gitUrl = 'https://github.com/hypergate-com/hypergate-sdk.git'
 
-    libraryVersion = '1.1.0'
+    libraryVersion = '1.1.3'
 
     developerId = 'hypergate-sdk'
     developerName = 'Papers GmbH'
@@ -45,8 +45,8 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 1
-        versionName "1.1.0"
+        versionCode 3
+        versionName "1.1.3"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
