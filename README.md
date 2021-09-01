@@ -56,7 +56,7 @@ After you included this plugin, your application will receive new managed config
 - Account type for HTTP Negotiate authentication: this controls which account type your webview will
  be looking for whenever there is an authentication challenge. This should be set to
  'ch.papers.hypergate'
-- Authentication server whitelist: this controls which servers are allowed to request authentication
+- Authentication server allowlist: this controls which servers are allowed to request authentication
  tokens from hypergate. This can be either a wildcard (*) or the domains you want to enable
 - Whether NTLMv2 authentication is enabled: the title is self explenatory and actually has nothing
  to do with Hypergate.

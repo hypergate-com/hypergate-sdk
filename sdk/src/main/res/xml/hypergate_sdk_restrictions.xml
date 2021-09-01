@@ -7,10 +7,10 @@
         android:restrictionType="bool"
         android:title="@string/NtlmV2EnabledTitle" />
     <restriction
-        android:description="@string/AuthServerWhitelistDesc"
-        android:key="com.android.browser:AuthServerWhitelist"
+        android:description="@string/AuthServerAllowlistDesc"
+        android:key="com.android.browser:AuthServerAllowlist"
         android:restrictionType="string"
-        android:title="@string/AuthServerWhitelistTitle" />
+        android:title="@string/AuthServerAllowlistTitle" />
     <restriction
         android:description="@string/AuthAndroidNegotiateAccountTypeDesc"
         android:key="com.android.browser:AuthAndroidNegotiateAccountType"
