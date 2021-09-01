@@ -12,6 +12,11 @@
         android:restrictionType="string"
         android:title="@string/AuthServerAllowlistTitle" />
     <restriction
+         android:description="@string/AuthServerWhitelistDesc"
+         android:key="com.android.browser:AuthServerWhitelist"
+         android:restrictionType="string"
+         android:title="@string/AuthServerWhitelistTitle" />
+    <restriction
         android:description="@string/AuthAndroidNegotiateAccountTypeDesc"
         android:key="com.android.browser:AuthAndroidNegotiateAccountType"
         android:restrictionType="string"
