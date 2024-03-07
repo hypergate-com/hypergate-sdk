@@ -5,14 +5,26 @@ Android Kerberos Authenticator such as the [Hypergate Authenticator](https://hyp
 
 ## Getting Started
 
-Hypergate is an official jcenter Android dependency. You can include it in your project by simply
-specifying com.hypergate:sdk:1.1.0 as a gradle dependency:
+To include the Hypergate SDK into your project, simply add the following line to your root build.gradle:
 
+```gradle
+....
+allprojects {
+   repositories {
+      google()
+      mavenCentral()
+      maven { url "https://jitpack.io" } // Add this line
+   }
+}
+....
+```
+ 
+And then add the following line to your app build.gradle:
 ```gradle
 ....
 dependencies {
    ....
-   implementation "com.hypergate:sdk:1.1.0"
+   implementation 'com.github.hypergate-com:hypergate-sdk:1.4.0'
    ....
 }
 ....
@@ -207,12 +219,6 @@ The following table includes a list of all errors you can encounter:
 |------|---------|-------------|
 | 101 | no accounts found |  No accounts found, make sure you added your package name to the hypergate discoverability list |
 
-## Troubleshooting
-
-Since there are various components interoperating (MDM, Hypergate, Your App, Chrome WebView, this SDK)
-wrong configuration can lead to issues. Here a list of issues and countermeasures how to solve then:
-
-TODO
 
 ## Contributing
 
